@@ -19,14 +19,21 @@ import java.util.regex.Pattern;
 
 public class Wordle {
 	
+	// list of words the player has guessed
 	private List<String> grid;
+	// word the player must guess
 	private String target;
+	// text file containing every word in the English language
 	private String fileName = "C:\\Users\\robyn\\Documents\\documents\\general-workspace\\WordleCloneNew\\src\\wordle1\\dictionary.txt";
+	// text file where the players stats are stored
 	private String saveFile = "C:\\Users\\robyn\\Documents\\documents\\general-workspace\\WordleCloneNew\\src\\wordle1\\savefile.txt";
+	// list of every word in the English language, taken from the text file
 	private List<String> dictionary;
+	// list of letters on a standard keyboard- these are what the player can use to guess
 	private String qwerty = "qwertyuiopasdfghjklzxcvbnm";
 	private LinkedHashMap<Character, Integer> letters;
 	
+	// initialise empty grid and letters
 	public Wordle() {
 		grid = new ArrayList<String>();
 		this.dictionary = new ArrayList<String>();
@@ -36,12 +43,15 @@ public class Wordle {
 		}
 	}
 	
+	// print the words the player has guessed so far, formatting the letters according to whether they are correct
 	private void printGrid() {
 		for (String word : grid) {
 			System.out.println(formatLetter(word));
 		}
 	}
 	
+	// print the virtual keyboard
+	// letters that have already been eliminated are removed from the keyboard
 	private void printLetters() {
 		String print = "";
 		int i = 0;
@@ -69,6 +79,7 @@ public class Wordle {
 		System.out.println(print);
 	}
 	
+	// correctly positioned letters have an asterisk, incorrectly positioned letters have an apostrophe, non-present letters have nothing
 	private String formatLetter(String word) {
 		String newWord = "";
 		for (int i = 0; i < word.length(); i++) {
@@ -86,6 +97,7 @@ public class Wordle {
 		return newWord;
 	}
 	
+	// take input from the player, checking if it's a valid guess (i.e., 5 letters long and a real word)
 	private boolean guess() {
 		Scanner scanner = new Scanner(System.in);
 		String guess = "";
@@ -108,6 +120,8 @@ public class Wordle {
 		
 	}
 	
+	// used for filtering any problematic words out of the dictionary (i.e. ones that contain capitals or special characters)
+	// also useful for adding foreign dictionaries if desired
 	private boolean containsBadChars(String word) {
 		if (word.contains("ú") || 
 				word.contains("ó") ||
@@ -170,7 +184,7 @@ public class Wordle {
 		}
 	}
 	
-	
+	// convert a text file to a list
 	private ArrayList<String> readFileLines(String fileName) {
 		BufferedReader buffer = null;
 		ArrayList<String> lines = new ArrayList<String>();
@@ -200,6 +214,7 @@ public class Wordle {
 		return lines;
 	}
 	
+	// save the player's score to a text file
 	private void saveToFile(String fileName, String score) {
 		
 		try {
@@ -212,6 +227,31 @@ public class Wordle {
 			      e.printStackTrace();
 			    }
 		
+	}
+	
+	
+	// get the player's scores from the text file
+	private HashMap<String, Integer> getScores(String fileName) {
+		ArrayList<String> scores = readFileLines(fileName);
+		HashMap<String, Integer> scoreMap = new HashMap<String, Integer>();
+		for (String l : scores) {
+			if (scoreMap.get(l) != null) {
+				scoreMap.put(l, scoreMap.get(l) + 1);
+			} else {
+				scoreMap.put(l, 1);
+			}
+			
+		}
+		
+		return scoreMap;
+	}
+	
+	// print the players previous scores
+	private void printScores(String fileName) {
+		HashMap<String, Integer> scores = getScores(fileName);
+		for (String s : scores.keySet()) {
+			System.out.println(s + ": " + scores.get(s));
+		}
 	}
 	
 	// saves dictionary to file
@@ -229,28 +269,6 @@ public class Wordle {
 			      e.printStackTrace();
 			    }
 		
-	}
-	
-	private HashMap<String, Integer> getScores(String fileName) {
-		ArrayList<String> scores = readFileLines(fileName);
-		HashMap<String, Integer> scoreMap = new HashMap<String, Integer>();
-		for (String l : scores) {
-			if (scoreMap.get(l) != null) {
-				scoreMap.put(l, scoreMap.get(l) + 1);
-			} else {
-				scoreMap.put(l, 1);
-			}
-			
-		}
-		
-		return scoreMap;
-	}
-	
-	private void printScores(String fileName) {
-		HashMap<String, Integer> scores = getScores(fileName);
-		for (String s : scores.keySet()) {
-			System.out.println(s + ": " + scores.get(s));
-		}
 	}
 	
 	// play the game
@@ -280,6 +298,19 @@ public class Wordle {
 		printScores(saveFile);
 	}
 	
-	
+	public void printIntro() {
+		System.out.println("Welcome to Wordle Java, here's how to play: ");
+		System.out.println("");
+		System.out.println("A random 5-letter word will be chosen. You have 6 tries to guess the word correctly.");
+		System.out.println("Your previous guesses will be displayed in a grid, with the letters marked according to how correct they are: ");
+		System.out.println("-Letters marked with an asterisk (e.g. A*) are present in the target word and are in the correct place.");
+		System.out.println("-Letters marked with an apostrophe are present in the target word but are in the wrong place.");
+		System.out.println("-Letters with no mark are not present in the target word.");
+		System.out.println("The same goes for the letters in the keyboard, except incorrect letters will be removed entirely.");
+		System.out.println("");
+		System.out.println("You will be given a summary of all your scores at the end of each game.");
+		System.out.println("Good luck!");
+		System.out.println("");
+	}
 	
 }
